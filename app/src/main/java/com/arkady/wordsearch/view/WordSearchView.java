@@ -157,7 +157,7 @@ public class WordSearchView extends View {
     }
 
     public boolean isReadyForDraw() {
-        return mNumColumns > 0 && mNumRows > 0 && mWordSearch != null;
+        return mNumColumns > 0 && mNumRows > 0 && mCellWidth > 0 && mCellHeight > 0 && mWordSearch != null;
     }
 
     private void drawCell(Canvas canvas, int row, int col, String letter) {
@@ -211,25 +211,28 @@ public class WordSearchView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            mStartCol = getColumnAtX(event.getX());
-            mStartRow = getRowAtY(event.getY());
-            mSelectedCells[mStartRow][mStartCol] = true;
+        if (isReadyForDraw()) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                mStartCol = getColumnAtX(event.getX());
+                mStartRow = getRowAtY(event.getY());
+                mSelectedCells[mStartRow][mStartCol] = true;
 
-        } else if (event.getAction() == MotionEvent.ACTION_MOVE && mStartRow >= 0 && mStartCol >= 0) {
-            clearSelected();
-            int col = getColumnAtX(event.getX());
-            int row = getRowAtY(event.getY());
+            } else if (event.getAction() == MotionEvent.ACTION_MOVE && mStartRow >= 0 && mStartCol >= 0) {
+                clearSelected();
+                int col = getColumnAtX(event.getX());
+                int row = getRowAtY(event.getY());
 
-            setCellsInRangeAsSelected(mStartRow, mStartCol, row, col);
-            invalidate();
-        } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
-            addFoundWordIfSelected();
-            clearSelected();
-            invalidate();
+                setCellsInRangeAsSelected(mStartRow, mStartCol, row, col);
+                invalidate();
+            } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+                addFoundWordIfSelected();
+                clearSelected();
+                invalidate();
+            }
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     private void setCellsInRangeAsSelected(int startRow, int startCol, int endRow, int endCol) {
